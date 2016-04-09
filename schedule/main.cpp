@@ -6,10 +6,10 @@ using namespace std;
 
 
 void main(){
-	/*using namespace JPSO_name;
+	using namespace JPSO_name;
 	JPSO();
 	using namespace HGA_name;
-	HGA();*/
+	HGA();
 	using namespace HSS_name;
 	HSS();
 	int x;
