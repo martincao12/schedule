@@ -40,17 +40,17 @@ def dataGen():
         for j in range(0,config['data_var_num']):
             output_var_filename="dataInput_"+str(i)+"_"+str(j)+".txt"
             output_var=open(output_var_filename,'w')
-            output_var.write('*'*200+'\n')
+            output_var.write('*'*300+'\n')
             output_var.write('basic info\n')
-            output_var.write('-'*200+'\n')
+            output_var.write('-'*300+'\n')
             output_var.write('%-20s %d\n'%('engine_in_process',config['engine_in_process']))
             output_var.write('%-20s %d\n'%('engine_to_start',config['engine_to_start']))
             output_var.write('%-20s %d\n'%('steps',(config['engine_in_process']+config['engine_to_start'])*10+2))
             output_var.write('%-20s %d\n'%('resources',10+config['facility_num']))
-            output_var.write('*'*200+'\n')
+            output_var.write('*'*300+'\n')
 
             output_var.write('resource availability\n');
-            output_var.write('-'*200+'\n')
+            output_var.write('-'*300+'\n')
             for k in range(0,10+config['facility_num']):
                 output_var.write('R%-5s\t'%(str(k)))
             output_var.write("\n")
@@ -67,13 +67,13 @@ def dataGen():
             for k in range(10,10+config['facility_num']):
                 output_var.write('%-5s\t'%(str(1)))
             output_var.write("\n")
-            output_var.write('*'*200+'\n')
+            output_var.write('*'*300+'\n')
 
             output_var.write('engine info\n')
-            output_var.write('-'*200+'\n')
+            output_var.write('-'*300+'\n')
             output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('engine_no','engine_type','isDaxiu','hasStarted','due_date'))
             engine_list=[]
-            for k  in range(0,config['engine_in_process']+config['engine_to_start']):
+            for k in range(0,config['engine_in_process']+config['engine_to_start']):
                 engine={}
                 engine['engine_no']=k
                 engine['engine_type']=random.randint(0,config['engine_type_num']-1)
@@ -83,13 +83,25 @@ def dataGen():
                 engine_list.append(engine)
             for engine in engine_list:
                 output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%(str(engine['engine_no']),str(engine['engine_type']),str(engine['isDaxiu']),str(engine['hasStarted']),str(engine['due_date'])));
-            output_var.write('*'*200+'\n')
+            output_var.write('*'*300+'\n')
 
             output_var.write('step info\n')
-            output_var.write('-'*200+'\n')
-            output_var.write('')
+            output_var.write('-'*300+'\n')
+            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('step_no','step_name','engine_no','status','stand_by_time','due_time','punish_weight','schedule_start_time','modes','successors','successor_list'))
+            successor_list_str=""
+            for k in range(0,config['engine_in_process']+config['engine_to_start']):
+                successor_list_str=successor_list_str+str(k*10+1)+" "
+            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('0','dummy_start','null','0','0','10000','0','null','1',str(config['engine_in_process']+config['engine_to_start']),successor_list_str))
             step_list=[]
-            
+            output_var.write('*'*300+'\n')
+            index=0
+            step_name_list=['buzhuang','chuanzhuang','zongzhuang','shiche','fenjie','gujian','buzhuang','chuanzhuang','zongzhuang','shiche']
+            for engine in engine_list:
+                for k in range(0,10):
+                    step_no_str=str(index*10+k+1)
+                    step_name_str=step_name_list[k]
+                    engine_no_str=engine['engine_no']
+                index=index+1
 
             output_var.close()
 readConfig()
