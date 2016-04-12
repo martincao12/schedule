@@ -69,10 +69,9 @@ def dataGen():
             output_var.write("\n")
             output_var.write('*'*200+'\n')
 
-            output_var.write('engine info\n');
+            output_var.write('engine info\n')
             output_var.write('-'*200+'\n')
             output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('engine_no','engine_type','isDaxiu','hasStarted','due_date'))
-            
             engine_list=[]
             for k  in range(0,config['engine_in_process']+config['engine_to_start']):
                 engine={}
@@ -85,6 +84,12 @@ def dataGen():
             for engine in engine_list:
                 output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%(str(engine['engine_no']),str(engine['engine_type']),str(engine['isDaxiu']),str(engine['hasStarted']),str(engine['due_date'])));
             output_var.write('*'*200+'\n')
+
+            output_var.write('step info\n')
+            output_var.write('-'*200+'\n')
+            output_var.write('')
+            step_list=[]
+            
 
             output_var.close()
 readConfig()
