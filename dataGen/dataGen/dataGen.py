@@ -4,7 +4,7 @@ config={}
 def readConfig():
     infile=open('config.txt','r')
     lines=infile.readlines()
-    for line in lines[0:len(lines)-1]:
+    for line in lines[0:len(lines)]:
         config[line.split(":")[0]]=int(line.split(":")[1])
 
 def dataGen():
@@ -41,9 +41,17 @@ def dataGen():
             output_var_filename="dataInput_"+str(i)+"_"+str(j)+".txt"
             output_var=open(output_var_filename,'w')
             output_var.write('*'*200+'\n')
-            output_var.write('resource info\n');
+            output_var.write('basic info\n')
             output_var.write('-'*200+'\n')
-            for k in range(0,10+engine_type['facility_num']):
+            output_var.write('%-20s %d\n'%('engine_in_process',config['engine_in_process']))
+            output_var.write('%-20s %d\n'%('engine_to_start',config['engine_to_start']))
+            output_var.write('%-20s %d\n'%('steps',(config['engine_in_process']+config['engine_to_start'])*10+2))
+            output_var.write('%-20s %d\n'%('resources',10+config['facility_num']))
+            output_var.write('*'*200+'\n')
+
+            output_var.write('resource availability\n');
+            output_var.write('-'*200+'\n')
+            for k in range(0,10+config['facility_num']):
                 output_var.write('R%-5s\t'%(str(k)))
             output_var.write("\n")
             output_var.write('%-5s\t'%(str(config['buzhuang_resource'])))
@@ -56,15 +64,28 @@ def dataGen():
             output_var.write('%-5s\t'%(str(config['zongzhuang_resource'])))
             output_var.write('%-5s\t'%(str(config['fenjie_resource'])))
             output_var.write('%-5s\t'%(str(config['gujian_resource'])))
-            for k in range(10,10+engine_type['facility_num']):
+            for k in range(10,10+config['facility_num']):
                 output_var.write('%-5s\t'%(str(1)))
             output_var.write("\n")
             output_var.write('*'*200+'\n')
-            output_var.write('engine num info\n')
+
+            output_var.write('engine info\n');
             output_var.write('-'*200+'\n')
-            output_var.write('%-10s %d\n'%('in_process',config['engine_in_process']))
-            output_var.write('%-10s %d\n'%('to_start',config['engine_to_start']))
+            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('engine_no','engine_type','isDaxiu','hasStarted','due_date'))
+            
+            engine_list=[]
+            for k  in range(0,config['engine_in_process']+config['engine_to_start']):
+                engine={}
+                engine['engine_no']=k
+                engine['engine_type']=random.randint(0,config['engine_type_num']-1)
+                engine['isDaxiu']=random.randint(0,1)
+                engine['hasStarted']=1 if k<config['engine_in_process'] else 0
+                engine['due_date']=config['due_date'] if engine['hasStarted']==1 else (config['due_date'] if random.randint(0,config['engine_to_start']-1)<=config['engine_to_start']-config['engine_in_process'] else config['next_due_date'])
+                engine_list.append(engine)
+            for engine in engine_list:
+                output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%(str(engine['engine_no']),str(engine['engine_type']),str(engine['isDaxiu']),str(engine['hasStarted']),str(engine['due_date'])));
             output_var.write('*'*200+'\n')
+
             output_var.close()
 readConfig()
 dataGen()

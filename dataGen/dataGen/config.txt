@@ -21,4 +21,5 @@ shiche_time_lb:1
 shiche_time_ub:2
 data_base_num:5
 data_var_num:20
-
+due_date:30
+next_due_date:60
