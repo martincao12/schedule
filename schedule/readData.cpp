@@ -20,7 +20,7 @@ void read(string filePath)
 
 	int engine_num=engine_in_process_num+engine_to_start_num;
 		
-	R=new int[task_num];
+	R=new int[R_num];
 	P=new int*[task_num];
 	S=new int*[task_num];
 	P_num=new int[task_num];
@@ -29,6 +29,9 @@ void read(string filePath)
 	d=new int[task_num];
 	r=new int*[task_num];
 	LF=new int[task_num];
+
+	engine_no=new int[task_num];
+	status=new int[tsak]
 
 	for(int i=0;i<4;i++) {getline(infile,input);}
 	for(int i=0;i<R_num;i++){

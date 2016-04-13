@@ -11,3 +11,12 @@ extern int *P_num;//number of porcessors
 extern int *S_num;//number of successors
 extern int **r;//requirement of resources
 extern int *LF;//latest finish time of each task
+
+extern int *engine_no;//the engine number of the corresponding engine
+extern int *status;//denote the status of the step
+extern int *resource_occupation;//denote which resource the ongoing step is occupying
+extern int *standby_time;//denote the earliest time the step can start
+extern int *due_time;//denote the due time of the step
+extern double *punish_weight;//denote the punish weight if the step is delayed
+extern int *schedule_start_time;//denote the start time of the step in the old schedule
+extern int *modes;//denote the number of modes can be used to execute this step
