@@ -6,12 +6,13 @@ using namespace std;
 
 
 void main(){
-	using namespace JPSO_name;
+	/*using namespace JPSO_name;
 	JPSO();
 	using namespace HGA_name;
 	HGA();
 	using namespace HSS_name;
-	HSS();
+	HSS();*/
+	read("dataInput_0_0.txt");
 	int x;
 	cin>>x;
 }

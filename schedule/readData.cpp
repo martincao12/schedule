@@ -4,25 +4,40 @@ using namespace std;
 
 void read(string filePath)
 {
-
 	cout<<filePath;
 	ifstream infile(filePath);
 	cout<<infile.is_open();
 	string input;
-	for(int i=0;i<6;i++) {getline(infile,input);}
-	task_num=atoi(input.substr(32).c_str());
-	for(int i=0;i<3;i++) getline(infile,input);
-	R_num=atoi(input.substr(32,2).c_str());
-	for(int i=0;i<9;i++) getline(infile,input);
-	
-	d=new int[task_num];
+
+	for(int i=0;i<4;i++) {getline(infile,input);}
+	engine_in_process_num=atoi(input.substr(20).c_str());
+	getline(infile,input);
+	engine_to_start_num=atoi(input.substr(20).c_str());
+	getline(infile,input);
+	task_num=atoi(input.substr(20).c_str());
+	getline(infile,input);
+	R_num=atoi(input.substr(20).c_str());
+
+	int engine_num=engine_in_process_num+engine_to_start_num;
+		
 	R=new int[task_num];
 	P=new int*[task_num];
 	S=new int*[task_num];
 	P_num=new int[task_num];
 	S_num=new int[task_num];
+
+	d=new int[task_num];
 	r=new int*[task_num];
 	LF=new int[task_num];
+
+	for(int i=0;i<4;i++) {getline(infile,input);}
+	for(int i=0;i<R_num;i++){
+		infile>>R[i];
+	}
+	
+	for(int i=0;i<9+engine_num;i++){getline(infile,input);}
+	cout<<input;
+	return;
 
 	int **tem_P=new int*[task_num];
 	for(int i=0;i<task_num;i++)
@@ -83,10 +98,7 @@ void read(string filePath)
 	}
 
 	for(int i=0;i<4;i++) getline(infile,input);
-	for(int i=0;i<R_num;i++)
-	{
-		infile>>R[i];
-	}
+	
 	infile.clear();
 	infile.close();
 }

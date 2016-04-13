@@ -90,7 +90,7 @@ def dataGen():
             successor_list_str=""
             for k in range(0,config['engine_in_process']+config['engine_to_start']):
                 successor_list_str=successor_list_str+str(k*10+1)+" "
-            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('0','dummy_start','null','0','null','0','10000','0','null','1',str(config['engine_in_process']+config['engine_to_start']),successor_list_str))
+            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%('0','dummy_start','-1','0','-1','0','10000','0','0','1',str(config['engine_in_process']+config['engine_to_start']),successor_list_str))
             step_list=[]
             index=0
             step_name_list=['buzhuang','chuanzhuang','zongzhuang','shiche','fenjie','gujian','buzhuang','chuanzhuang','zongzhuang','shiche']
@@ -208,7 +208,7 @@ def dataGen():
                     modes_str='1'
                     successors_str='1'
                     successor_list_str=str(index*10+k+1+1)
-                    schedule_start_time_str='null'
+                    schedule_start_time_str='0'
                     if(k==9):
                         due_time_str=str(engine['due_date'])
                         punish_weight_str=str(random.uniform(0.5,1.5))[0:4]
@@ -228,24 +228,24 @@ def dataGen():
                             status_str=str(jindu_status)
                             resource_occupation_str=str(resource_occupation)
                             if(k==0 or k==6):
-                                stand_by_time_str=str(random.randint(-config['buzhuang_time_lb']+1,0))
+                                schedule_start_time_str=str(random.randint(-engine_type_list[engine['engine_type']]['buzhuang_time']+1,0))
                             if(k==1 or k==7):
-                                stand_by_time_str=str(random.randint(-config['chuanzhuang_time_lb']+1,0))
+                                schedule_start_time_str=str(random.randint(-engine_type_list[engine['engine_type']]['chuanzhuang_time']+1,0))
                             if(k==2 or k==8):
-                                stand_by_time_str=str(random.randint(-config['zongzhuang_time_lb']+1,0))
+                                schedule_start_time_str=str(random.randint(-engine_type_list[engine['engine_type']]['zongzhuang_time']+1,0))
                             if(k==3 or k==9):
-                                stand_by_time_str=str(random.randint(-config['shiche_time_lb']+1,0))
+                                schedule_start_time_str=str(random.randint(-engine_type_list[engine['engine_type']]['shiche_time']+1,0))
                             if(k==4):
-                                stand_by_time_str=str(random.randint(-config['fenjie_time_lb']+1,0))
+                                schedule_start_time_str=str(random.randint(-engine_type_list[engine['engine_type']]['fenjie_time']+1,0))
                             if(k==5):
-                                stand_by_time_str=str(random.randint(-config['gujian_time_lb']+1,0))
+                                schedule_start_time_str=str(random.randint(-engine_type_list[engine['engine_type']]['gujian_time']+1,0))
                         if(k>jindu):
                             status_str='1'
                             resource_occupation_str='-1'
                             schedule_start_time_str='0'
                     output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%(step_no_str,step_name_str,engine_no_str,status_str,resource_occupation_str,stand_by_time_str,due_time_str,punish_weight_str,schedule_start_time_str,modes_str,successors_str,successor_list_str))
                 index=index+1
-            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%(str((config['engine_in_process']+config['engine_to_start'])*10+1),'dummy_end','null','0','null','0','10000','0','null','1','0',''))
+            output_var.write('%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t%-20s\t\n'%(str((config['engine_in_process']+config['engine_to_start'])*10+1),'dummy_end','-1','0','-1','0','10000','0','0','1','0',''))
             output_var.write('*'*300+'\n')
 
             
