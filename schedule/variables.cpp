@@ -20,3 +20,5 @@ int *due_time;//denote the due time of the step
 double *punish_weight;//denote the punish weight if the step is delayed
 int *schedule_start_time;//denote the start time of the step in the old schedule
 int *modes;//denote the number of modes can be used to execute this step
+int **d_multi_mode;//duration with consideration to multi mode
+int ***r_multi_mode;//resource requirement with consideration to multi mode

@@ -20,3 +20,5 @@ extern int *due_time;//denote the due time of the step
 extern double *punish_weight;//denote the punish weight if the step is delayed
 extern int *schedule_start_time;//denote the start time of the step in the old schedule
 extern int *modes;//denote the number of modes can be used to execute this step
+extern int **d_multi_mode;//duration with consideration to multi mode
+extern int ***r_multi_mode;//resource requirement with consideration to multi mode

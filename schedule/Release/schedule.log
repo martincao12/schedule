@@ -1,4 +1,4 @@
-﻿生成启动时间为 2016/4/13 17:28:15。
+﻿生成启动时间为 4/14/2016 12:13:18 AM。
      1>项目“E:\Documents\cppProjects\schedule\schedule\schedule.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt readData.cpp
@@ -15,4 +15,4 @@
 
 生成成功。
 
-已用时间 00:00:01.33
+已用时间 00:00:02.22

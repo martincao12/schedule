@@ -212,8 +212,10 @@ def dataGen():
                     if(k==9):
                         due_time_str=str(engine['due_date'])
                         punish_weight_str=str(random.uniform(0.5,1.5))[0:4]
-                        modes_str=engine_type_list[engine['engine_type']]['facility_num']
+                        modes_str=str(engine_type_list[engine['engine_type']]['facility_num'])
                         successor_list_str=str((config['engine_in_process']+config['engine_to_start'])*10+1)
+                    if(k==3):
+                        modes_str=str(engine_type_list[engine['engine_type']]['facility_num'])
                     if(engine['hasStarted']==0):
                         status_str='0'
                         resource_occupation='-1'

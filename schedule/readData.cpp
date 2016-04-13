@@ -29,9 +29,17 @@ void read(string filePath)
 	d=new int[task_num];
 	r=new int*[task_num];
 	LF=new int[task_num];
+	d_multi_mode=new int*[task_num];
+	r_multi_mode=new int**[task_num];
 
 	engine_no=new int[task_num];
-	status=new int[tsak]
+	status=new int[task_num];
+	resource_occupation=new int[task_num];
+	standby_time=new int[task_num];
+	due_time=new int[task_num];
+	punish_weight=new double[task_num];
+	schedule_start_time=new int[task_num];
+	modes=new int[task_num];
 
 	for(int i=0;i<4;i++) {getline(infile,input);}
 	for(int i=0;i<R_num;i++){
@@ -39,8 +47,6 @@ void read(string filePath)
 	}
 	
 	for(int i=0;i<9+engine_num;i++){getline(infile,input);}
-	cout<<input;
-	return;
 
 	int **tem_P=new int*[task_num];
 	for(int i=0;i<task_num;i++)
@@ -53,9 +59,10 @@ void read(string filePath)
 	}
 
 	int tem_int;
+	string tem_ss;
 	for(int i=0;i<task_num;i++)
 	{
-		infile>>tem_int>>tem_int>>tem_int;
+		infile>>tem_int>>tem_ss>>engine_no[i]>>status[i]>>resource_occupation[i]>>standby_time[i]>>due_time[i]>>punish_weight[i]>>schedule_start_time[i]>>modes[i]>>tem_int;
 		S_num[i]=tem_int;
 		S[i]=new int[tem_int];
 		for(int j=0;j<tem_int;j++)
@@ -88,19 +95,19 @@ void read(string filePath)
 
 	for(int i=0;i<task_num;i++) delete[] tem_P[i];
 	delete[] tem_P;
-	for(int i=0;i<5;i++) getline(infile,input);
 
+
+	for(int i=0;i<5;i++) getline(infile,input);
 	for(int i=0;i<task_num;i++)
 	{
-		r[i]=new int[R_num];
-		infile>>tem_int>>tem_int>>d[i];
-		for(int j=0;j<R_num;j++)
-		{
-			infile>>r[i][j];
+		d_multi_mode[i]=new int[modes[i]];
+		r_multi_mode[i]=new int*[modes[i]];
+		for(int j=0;j<modes[i];j++){
+			r_multi_mode[i][j]=new int[R_num];
+			infile>>tem_int>>tem_int>>d_multi_mode[i][j];
+			for(int k=0;k<R_num;k++) infile>>r_multi_mode[i][j][k];
 		}
 	}
-
-	for(int i=0;i<4;i++) getline(infile,input);
 	
 	infile.clear();
 	infile.close();
