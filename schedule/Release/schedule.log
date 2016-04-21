@@ -1,8 +1,76 @@
-﻿生成启动时间为 4/14/2016 12:13:18 AM。
+﻿生成启动时间为 2016/4/15 18:59:42。
      1>项目“E:\Documents\cppProjects\schedule\schedule\schedule.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt readData.cpp
-         readData.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>e:\documents\cppprojects\schedule\schedule\HGA.h(592): warning C4018: “<”: 有符号/无符号不匹配
+     1>e:\documents\cppprojects\schedule\schedule\HGA.h(593): warning C4018: “<”: 有符号/无符号不匹配
+     1>e:\documents\cppprojects\schedule\schedule\HGA.h(602): warning C4018: “<”: 有符号/无符号不匹配
+     1>e:\documents\cppprojects\schedule\schedule\HGA.h(961): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(218) : 参见“fopen”的声明
+     1>e:\documents\cppprojects\schedule\schedule\HGA.h(975): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(218) : 参见“fopen”的声明
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(776): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(913): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(915): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(921): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(942): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(944): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\JPSO.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\JPSO.h(1294): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(218) : 参见“fopen”的声明
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(12): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(427): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(428): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(449): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(650): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(667): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(668): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(682): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(683): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(716): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(717): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(731): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(732): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(814): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(858): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(878): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(879): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(893): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(894): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(925): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(926): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(939): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(940): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\HSS.h(962): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(218) : 参见“fopen”的声明
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(776): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(913): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(915): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(921): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(942): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(944): warning C4258: “k”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(901) : 忽略“k”的定义
+                 e:\documents\cppprojects\schedule\schedule\heuristic.h(872) : 使用“k”的定义
+     1>e:\documents\cppprojects\schedule\schedule\heuristic.h(1294): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(218) : 参见“fopen”的声明
        Link:
          D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Documents\cppProjects\schedule\Release\schedule.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Documents\cppProjects\schedule\Release\schedule.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Documents\cppProjects\schedule\Release\schedule.lib" /MACHINE:X86 /SAFESEH Release\functions.obj
          Release\main.obj
@@ -15,4 +83,4 @@
 
 生成成功。
 
-已用时间 00:00:02.22
+已用时间 00:00:02.48

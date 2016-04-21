@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functions.h" />
+    <ClInclude Include="heuristic.h" />
     <ClInclude Include="HGA.h" />
     <ClInclude Include="HSS.h" />
     <ClInclude Include="JPSO.h" />

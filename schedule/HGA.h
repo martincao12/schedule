@@ -11,7 +11,7 @@ namespace HGA_name{
 
 	int POPsize=250;
 	int nsche=50000;
-	int niter=100;
+	int niter=5;
 	double beta=0.3;
 	double pi=0.5;
 
@@ -77,6 +77,20 @@ namespace HGA_name{
 				{
 					int tem_int=Fg[isScheduled[P[activityList[j]][k]]];
 					if(ES_tem<tem_int) ES_tem=tem_int;
+				}
+
+				if(ES_tem<standby_time[activityList[j]]) ES_tem=standby_time[activityList[j]];
+				int max_Fg=0;
+				for(int k=0;k<i;k++){
+					if(Fg[k]>max_Fg) max_Fg=Fg[k];
+				}
+
+				if(max_Fg<=ES_tem){
+					Sg[i]=activityList[j];
+					Fg[i]=ES_tem+d[activityList[j]];
+					isScheduled[activityList[j]]=i;
+					delete[] R_copy;
+					break;
 				}
 
 				for(int k=0;k<i;k++)
@@ -191,7 +205,7 @@ namespace HGA_name{
 		{
 			for(int j=0;j<task_num-i-1;j++)
 			{
-				if(x[j]<x[j+1])
+				if(x[j]<=x[j+1])
 				{
 					T tem_d;
 					tem_d=x[j];
@@ -207,7 +221,7 @@ namespace HGA_name{
 		delete[] x;
 	}
 
-	//right justification
+//right justification
 	void right_justification(int *stime)
 	{
 		int *Sg=new int[task_num];
@@ -288,7 +302,7 @@ namespace HGA_name{
 			delete[] R_copy;
 			for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
 		}
-		for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
+		//for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
 		for(int i=0;i<task_num;i++) stime[i]=Fg[i]-d[i];
 		delete[] activityList;
 		delete[] activity_Fg;
@@ -299,6 +313,10 @@ namespace HGA_name{
 	//left justification
 	void left_justification(int *stime)
 	{
+		stime[0]=0;
+		for(int i=0;i<task_num;i++){
+			if(status[i]==3) stime[i]=0;
+		}
 		int *Sg=new int[task_num];
 		for(int i=0;i<task_num;i++) Sg[i]=i;
 
@@ -313,6 +331,8 @@ namespace HGA_name{
 		delete[] Fg_copy;
 		int *activity_Fg=new int[task_num];
 		for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+		/*for(int i=0;i<task_num;i++) cout<<endl<<i<<" "<<activityList[i]<<" "<<stime[i];
+		int xx;cin>>xx;*/
 		for(int i=task_num-1;i>=0;i--)
 		{
 			if(Sg[activityList[i]]==0) continue;
@@ -322,6 +342,8 @@ namespace HGA_name{
 				int tem_int=activity_Fg[P[Sg[activityList[i]]][j]];
 				if(tem_int>tem_ES) tem_ES=tem_int;
 			}
+			if(standby_time[Sg[activityList[i]]]>tem_ES) tem_ES=standby_time[Sg[activityList[i]]];
+
 			int *R_copy=new int[R_num];
 
 			for(int t=tem_ES;t<Fg[activityList[i]]-d[Sg[activityList[i]]];t++)
@@ -728,6 +750,7 @@ namespace HGA_name{
 		double *LFT_priority=new double[task_num];
 		for(int i=0;i<task_num;i++){
 			LFT_priority[i]=1/(double)LF[i];
+			if(status[i]==2) LFT_priority[i]=my_rand()*5+5;
 		}
 		
 
@@ -751,7 +774,7 @@ namespace HGA_name{
 
 		for(int i=0;i<population_size;i++){
 			for(int j=0;j<population_size-i-1;j++){
-				if(stime[j][task_num-1]>stime[j+1][task_num-1]){
+				if(compute_score(stime[j])>compute_score(stime[j+1])){
 					array_copy(stime[j+1],tem_stime,task_num);
 					array_copy(stime[j],stime[j+1],task_num);
 					array_copy(tem_stime,stime[j],task_num);
@@ -824,7 +847,7 @@ namespace HGA_name{
 
 			int cp_index=0;
 			for(int i=0;i<POPsize&&cp_index<((int)(pi*POPsize/2))*2;i++){
-				if(cp_stime[cp_index][task_num-1]<s_ph1[i][task_num-1]){
+				if(compute_score(cp_stime[cp_index])<compute_score(s_ph1[i])){
 					array_copy(cp_stime[cp_index],s_ph1[i],task_num);
 					array_copy(cp_AL[cp_index],indv_ph1[i],task_num);
 					cp_index++;
@@ -910,7 +933,7 @@ namespace HGA_name{
 
 			int cp_index=0;
 			for(int i=0;i<POPsize/2&&cp_index<((int)(pi*POPsize/4))*2;i++){
-				if(cp_stime[cp_index][task_num-1]<s_ph2[i][task_num-1]){
+				if(compute_score(cp_stime[cp_index])<compute_score(s_ph2[i])){
 					array_copy(cp_stime[cp_index],s_ph2[i],task_num);
 					array_copy(cp_AL[cp_index],indv_ph2[i],task_num);
 					cp_index++;
@@ -934,9 +957,14 @@ namespace HGA_name{
 
 	//finalize, record the output
 	void finalize(string filePath,int last_time){
-		if(s_ph1[0][task_num-1]<s_ph2[0][task_num-1]){
+		if(compute_score(s_ph1[0])<compute_score(s_ph2[0])){
 			FILE* file_write=fopen(filePath.c_str(),"w");
-			fprintf(file_write,"%dms\n",clock()-last_time);	
+			fprintf(file_write,"time_cost:%dms\n",clock()-last_time);
+			fprintf(file_write,"ontime_proportion:%f\n",compute_ontime_proportion(s_ph1[0]));
+			fprintf(file_write,"max_delay:%d\n",compute_max_delay(s_ph1[0]));
+			fprintf(file_write,"avg_delay:%f\n",compute_avg_delay(s_ph1[0]));
+			fprintf(file_write,"avg_flowtime:%f\n",compute_avg_flowtime(s_ph1[0]));
+			fprintf(file_write,"object function value:%f\n",compute_score(s_ph1[0]));
 			for(int i=0;i<task_num;i++)
 			{
 				fprintf(file_write,"%d\n",s_ph1[0][i]);	
@@ -945,10 +973,15 @@ namespace HGA_name{
 		}
 		else{
 			FILE* file_write=fopen(filePath.c_str(),"w");
-			fprintf(file_write,"%dms\n",clock()-last_time);	
+			fprintf(file_write,"time_cost:%dms\n",clock()-last_time);
+			fprintf(file_write,"ontime_proportion:%f\n",compute_ontime_proportion(s_ph2[0]));
+			fprintf(file_write,"max_delay:%d\n",compute_max_delay(s_ph2[0]));
+			fprintf(file_write,"avg_delay:%f\n",compute_avg_delay(s_ph2[0]));
+			fprintf(file_write,"avg_flowtime:%f\n",compute_avg_flowtime(s_ph2[0]));
+			fprintf(file_write,"object function value:%f\n",compute_score(s_ph2[0]));
 			for(int i=0;i<task_num;i++)
 			{
-				fprintf(file_write,"%d\n",s_ph1[0][i]);	
+				fprintf(file_write,"%d\n",s_ph2[0][i]);	
 			}	
 			fclose(file_write);
 		}
@@ -974,13 +1007,14 @@ namespace HGA_name{
 	void process(string filePath,string outPath){
 		int last_time=clock();
 		read(filePath);
+		dataPreProcess();
 		phase1();
 		phase2();
 		finalize(outPath,last_time);
 		clear();
 	}
 
-	void HGA(){
+	void HGA(int start_i,int start_j){
 		int last_time;
 		char path[MAX_PATH];   
 		_getcwd(path, MAX_PATH);
@@ -988,10 +1022,10 @@ namespace HGA_name{
 		string outPath;
 
 		{
-			cout<<"processing j30 ...\n";
-			for(int i=1;i<=48;i++)
+			cout<<"processing start\n";
+			for(int i=start_i;i<5;i++)
 			{
-				for(int j=1;j<=10;j++)
+				for(int j=start_j;j<20;j++)
 				{
 					strstream ss1,ss2;
 					ss1<<i;
@@ -1000,87 +1034,16 @@ namespace HGA_name{
 					ss1>>s1;
 					ss2>>s2;
 					outPath=filePath=path;
-					filePath+="\\j30\\j30"+s1+"_"+s2+".sm";
-					outPath+="\\j30\\j30"+s1+"_"+s2+"_HGAresult.txt";
+					filePath+="\\dataInput_"+s1+"_"+s2+".txt";
+					outPath+="\\dataInput_"+s1+"_"+s2+"_HGAresult.txt";
 					last_time=clock();
-					cout<<"processing j30"<<i<<"_"<<j<<" ...\n";
+					cout<<"processing dataInput_"<<i<<"_"<<j<<" ...\n";
 					process(filePath,outPath);
-					cout<<"j30"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
+					cout<<"dataInput_"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
 
 				}
 			}
 			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j60 ...\n";
-			for(int i=1;i<=48;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j60\\j60"+s1+"_"+s2+".sm";
-					outPath+="\\j60\\j60"+s1+"_"+s2+"_HGAresult.txt";
-					last_time=clock();
-					cout<<"processing j60"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j60"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j90 ...\n";
-			for(int i=1;i<=48;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j90\\j90"+s1+"_"+s2+".sm";
-					outPath+="\\j90\\j90"+s1+"_"+s2+"_HGAresult.txt";
-					last_time=clock();
-					cout<<"processing j90"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j90"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j120 ...\n";
-			for(int i=1;i<=60;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j120\\j120"+s1+"_"+s2+".sm";
-					outPath+="\\j120\\j120"+s1+"_"+s2+"_HGAresult.txt";
-					last_time=clock();
-					cout<<"processing j120"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j120"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
 		}
 
 	}

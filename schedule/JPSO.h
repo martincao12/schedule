@@ -4,9 +4,9 @@
 
 namespace JPSO_name{
 	int LFT=1;//denote whether to use LFT to initialize the swarm
-	int for_num=20;//the number of particles in forward particle swarm
-	int back_num=20;//the number of particles in backward particle swarm
-	int iter_num=416;//the number of iterations
+	int for_num=40;//the number of particles in forward particle swarm
+	int back_num=0;//the number of particles in backward particle swarm
+	int iter_num=20;//the number of iterations
 	double Chi=0.4;//the constriction factor in PSO
 	int DJ=1;//denote whether to use the double justification
 	int Mapping=0;//denote whether to use the mapping method after each iteration
@@ -80,38 +80,66 @@ namespace JPSO_name{
 	}
 
 	//right justification
-	void right_justification(int *Sg,int *Fg,int order)
+	void right_justification_out(int *stime)
 	{
-		if(order==0)
-		{
-			int *activityList=new int[task_num];
-			gen_activityList(Fg,activityList);
-			int *activity_Fg=new int[task_num];
-			for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
-			for(int i=0;i<task_num;i++)
-			{
-				if(Sg[activityList[i]]==task_num-1) continue;
-				int tem_LF=LF[task_num-1];
-				for(int j=0;j<S_num[Sg[activityList[i]]];j++)
-				{
-					int tem_int=activity_Fg[S[Sg[activityList[i]]][j]]-d[S[Sg[activityList[i]]][j]];
-					if(tem_int<tem_LF) tem_LF=tem_int;
-				}
-				int *R_copy=new int[R_num];
+		int *Sg=new int[task_num];
+		for(int i=0;i<task_num;i++) Sg[i]=i;
 
-				for(int t=tem_LF-d[Sg[activityList[i]]];t>=Fg[activityList[i]]-d[Sg[activityList[i]]];t--)
+		int *Fg=new int[task_num];
+		for(int i=0;i<task_num;i++) Fg[i]=stime[i]+d[i];
+
+		int *activityList=new int[task_num];
+		gen_activityList(Fg,activityList);
+		int *activity_Fg=new int[task_num];
+		for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+		for(int i=0;i<task_num;i++)
+		{
+			if(Sg[activityList[i]]==task_num-1) continue;
+			int tem_LF=LF[task_num-1];
+			for(int j=0;j<S_num[Sg[activityList[i]]];j++)
+			{
+				int tem_int=activity_Fg[S[Sg[activityList[i]]][j]]-d[S[Sg[activityList[i]]][j]];
+				if(tem_int<tem_LF) tem_LF=tem_int;
+			}
+			int *R_copy=new int[R_num];
+
+			for(int t=tem_LF-d[Sg[activityList[i]]];t>=Fg[activityList[i]]-d[Sg[activityList[i]]];t--)
+			{
+				int rFeasible=1;
 				{
-					int rFeasible=1;
+					array_copy(R,R_copy,R_num);
+					for(int l=0;l<task_num;l++)
+					{
+						if(l==activityList[i]) continue;
+						if(Fg[l]-d[Sg[l]]<=t&&t<Fg[l])
+						{
+							for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
+						}
+					}
+					for(int l=0;l<R_num;l++)
+					{
+						if(R_copy[l]<r[Sg[activityList[i]]][l])
+						{
+							rFeasible=0;
+							break;
+						}
+					}
+				}
+				for(int s=0;s<task_num;s++)
+				{
+					if(s==activityList[i]) continue;
+
+					if(t<Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<t+d[Sg[activityList[i]]])
 					{
 						array_copy(R,R_copy,R_num);
 						for(int l=0;l<task_num;l++)
 						{
 							if(l==activityList[i]) continue;
-							if(Fg[l]-d[Sg[l]]<=t&&t<Fg[l])
+							if(Fg[l]-d[Sg[l]]<=Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<Fg[l])
 							{
 								for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
 							}
-						}
+						}				
 						for(int l=0;l<R_num;l++)
 						{
 							if(R_copy[l]<r[Sg[activityList[i]]][l])
@@ -121,63 +149,231 @@ namespace JPSO_name{
 							}
 						}
 					}
-					for(int s=0;s<task_num;s++)
+				}
+
+				if(rFeasible==1)
+				{
+					Fg[activityList[i]]=t+d[Sg[activityList[i]]];
+					break;
+				}
+			}
+			delete[] R_copy;
+			for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+		}
+		//for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
+		for(int i=0;i<task_num;i++) stime[i]=Fg[i]-d[i];
+		delete[] activityList;
+		delete[] activity_Fg;
+		delete[] Sg;
+		delete[] Fg;
+	}
+
+	//left justification
+	void left_justification_out(int *stime)
+	{
+		stime[0]=0;
+		for(int i=0;i<task_num;i++){
+			if(status[i]==3) stime[i]=0;
+		}
+		int *Sg=new int[task_num];
+		for(int i=0;i<task_num;i++) Sg[i]=i;
+
+		int *Fg=new int[task_num];
+		for(int i=0;i<task_num;i++) Fg[i]=stime[i]+d[i];
+
+		int *activityList=new int[task_num];
+		int *Fg_copy=new int[task_num];
+		array_copy(Fg,Fg_copy,task_num);
+		for(int i=0;i<task_num;i++) Fg_copy[i]-=d[Sg[i]];
+		gen_activityList(Fg_copy,activityList);
+		delete[] Fg_copy;
+		int *activity_Fg=new int[task_num];
+		for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+		/*for(int i=0;i<task_num;i++) cout<<endl<<i<<" "<<activityList[i]<<" "<<stime[i];
+		int xx;cin>>xx;*/
+		for(int i=task_num-1;i>=0;i--)
+		{
+			if(Sg[activityList[i]]==0) continue;
+			int tem_ES=0;
+			for(int j=0;j<P_num[Sg[activityList[i]]];j++)
+			{
+				int tem_int=activity_Fg[P[Sg[activityList[i]]][j]];
+				if(tem_int>tem_ES) tem_ES=tem_int;
+			}
+			if(standby_time[Sg[activityList[i]]]>tem_ES) tem_ES=standby_time[Sg[activityList[i]]];
+
+			int *R_copy=new int[R_num];
+
+			for(int t=tem_ES;t<Fg[activityList[i]]-d[Sg[activityList[i]]];t++)
+			{
+				int rFeasible=1;
+				{
+					array_copy(R,R_copy,R_num);
+					for(int l=0;l<task_num;l++)
 					{
-						if(s==activityList[i]) continue;
-						//if(t<Fg[s]&&Fg[s]<t+d[Sg[activityList[i]]])
-						//{
-						//	array_copy(R,R_copy,R_num);
-						//	for(int l=0;l<task_num;l++)
-						//	{
-						//		if(l==activityList[i]) continue;
-						//		if(Fg[l]-d[Sg[l]]<=Fg[s]&&Fg[s]<Fg[l])
-						//		{
-						//			for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
-						//		}
-						//	}				
-						//	for(int l=0;l<R_num;l++)
-						//	{
-						//		if(R_copy[l]<r[Sg[activityList[i]]][l])
-						//		{
-						//			rFeasible=0;
-						//			break;
-						//		}
-						//	}
-						//}
-						if(t<Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<t+d[Sg[activityList[i]]])
+						if(l==activityList[i]) continue;
+						if(Fg[l]-d[Sg[l]]<=t&&t<Fg[l])
 						{
-							array_copy(R,R_copy,R_num);
-							for(int l=0;l<task_num;l++)
+							for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
+						}
+					}
+					for(int l=0;l<R_num;l++)
+					{
+						if(R_copy[l]<r[Sg[activityList[i]]][l])
+						{
+							rFeasible=0;
+							break;
+						}
+					}
+				}
+				for(int s=0;s<task_num;s++)
+				{
+					if(s==activityList[i]) continue;
+
+					if(t<Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<t+d[Sg[activityList[i]]])
+					{
+						array_copy(R,R_copy,R_num);
+						for(int l=0;l<task_num;l++)
+						{
+							if(l==activityList[i]) continue;
+							if(Fg[l]-d[Sg[l]]<=Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<Fg[l])
 							{
-								if(l==activityList[i]) continue;
-								if(Fg[l]-d[Sg[l]]<=Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<Fg[l])
-								{
-									for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
-								}
-							}				
-							for(int l=0;l<R_num;l++)
+								for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
+							}
+						}				
+						for(int l=0;l<R_num;l++)
+						{
+							if(R_copy[l]<r[Sg[activityList[i]]][l])
 							{
-								if(R_copy[l]<r[Sg[activityList[i]]][l])
-								{
-									rFeasible=0;
-									break;
-								}
+								rFeasible=0;
+								break;
 							}
 						}
 					}
-
-					if(rFeasible==1)
-					{
-						Fg[activityList[i]]=t+d[Sg[activityList[i]]];
-						break;
-					}
 				}
-				delete[] R_copy;
-				for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+
+				if(rFeasible==1)
+				{
+					Fg[activityList[i]]=t+d[Sg[activityList[i]]];
+					break;
+				}
 			}
-			for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
-			delete[] activityList;
-			delete[] activity_Fg;
+			delete[] R_copy;
+			for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+		}
+		
+		for(int i=0;i<task_num;i++) stime[i]=Fg[i]-d[i];
+		delete[] activityList;
+		delete[] activity_Fg;
+		delete[] Sg;
+		delete[] Fg;
+	}
+
+	//right justification
+	void right_justification(int *Sg,int *Fg,int order)
+	{
+		if(order==0)
+		{
+			int *stime=new int[task_num];
+			for(int i=0;i<task_num;i++) stime[Sg[i]]=Fg[i]-d[Sg[i]];
+			right_justification_out(stime);
+			for(int i=0;i<task_num;i++){Sg[i]=i;Fg[i]=stime[i]+d[i];}
+			delete[] stime;
+			//int *activityList=new int[task_num];
+			//gen_activityList(Fg,activityList);
+			//
+			//int *activity_Fg=new int[task_num];
+			//for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+			//for(int i=0;i<task_num;i++)
+			//{
+			//	if(Sg[activityList[i]]==task_num-1) continue;
+			//	int tem_LF=LF[task_num-1];
+			//	for(int j=0;j<S_num[Sg[activityList[i]]];j++)
+			//	{
+			//		int tem_int=activity_Fg[S[Sg[activityList[i]]][j]]-d[S[Sg[activityList[i]]][j]];
+			//		if(tem_int<tem_LF) tem_LF=tem_int;
+			//	}
+			//	int *R_copy=new int[R_num];
+
+			//	for(int t=tem_LF-d[Sg[activityList[i]]];t>=Fg[activityList[i]]-d[Sg[activityList[i]]];t--)
+			//	{
+			//		int rFeasible=1;
+			//		{
+			//			array_copy(R,R_copy,R_num);
+			//			for(int l=0;l<task_num;l++)
+			//			{
+			//				if(l==activityList[i]) continue;
+			//				if(Fg[l]-d[Sg[l]]<=t&&t<Fg[l])
+			//				{
+			//					for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
+			//				}
+			//			}
+			//			for(int l=0;l<R_num;l++)
+			//			{
+			//				if(R_copy[l]<r[Sg[activityList[i]]][l])
+			//				{
+			//					rFeasible=0;
+			//					break;
+			//				}
+			//			}
+			//		}
+			//		for(int s=0;s<task_num;s++)
+			//		{
+			//			if(s==activityList[i]) continue;
+			//			//if(t<Fg[s]&&Fg[s]<t+d[Sg[activityList[i]]])
+			//			//{
+			//			//	array_copy(R,R_copy,R_num);
+			//			//	for(int l=0;l<task_num;l++)
+			//			//	{
+			//			//		if(l==activityList[i]) continue;
+			//			//		if(Fg[l]-d[Sg[l]]<=Fg[s]&&Fg[s]<Fg[l])
+			//			//		{
+			//			//			for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
+			//			//		}
+			//			//	}				
+			//			//	for(int l=0;l<R_num;l++)
+			//			//	{
+			//			//		if(R_copy[l]<r[Sg[activityList[i]]][l])
+			//			//		{
+			//			//			rFeasible=0;
+			//			//			break;
+			//			//		}
+			//			//	}
+			//			//}
+			//			if(t<Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<t+d[Sg[activityList[i]]])
+			//			{
+			//				array_copy(R,R_copy,R_num);
+			//				for(int l=0;l<task_num;l++)
+			//				{
+			//					if(l==activityList[i]) continue;
+			//					if(Fg[l]-d[Sg[l]]<=Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<Fg[l])
+			//					{
+			//						for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
+			//					}
+			//				}				
+			//				for(int l=0;l<R_num;l++)
+			//				{
+			//					if(R_copy[l]<r[Sg[activityList[i]]][l])
+			//					{
+			//						rFeasible=0;
+			//						break;
+			//					}
+			//				}
+			//			}
+			//		}
+
+			//		if(rFeasible==1)
+			//		{
+			//			Fg[activityList[i]]=t+d[Sg[activityList[i]]];
+			//			break;
+			//		}
+			//	}
+			//	delete[] R_copy;
+			//	for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
+			//}
+			////for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
+			//delete[] activityList;
+			//delete[] activity_Fg;
 		}
 		else
 		{
@@ -278,11 +474,24 @@ namespace JPSO_name{
 		}
 	}
 
+
+
 	//left justification
 	void left_justification(int *Sg,int *Fg,int order)
 	{
 		if(order==0)
 		{
+			int *stime=new int[task_num];
+			for(int i=0;i<task_num;i++) stime[Sg[i]]=Fg[i]-d[Sg[i]];
+			left_justification_out(stime);
+			for(int i=0;i<task_num;i++){Sg[i]=i;Fg[i]=stime[i]+d[i];}
+			delete[] stime;
+			/*for(int i=0;i<task_num;i++) cout<<endl<<i<<" "<<Sg[i]<<" "<<Fg[i];
+			for(int i=0;i<task_num;i++){
+				if(status[Sg[i]]==3||Sg[i]==0) Fg[i]=0;
+			}
+			for(int i=0;i<task_num;i++) cout<<endl<<i<<" "<<Sg[i]<<" "<<Fg[i];
+			
 			int *activityList=new int[task_num];
 			int *Fg_copy=new int[task_num];
 			array_copy(Fg,Fg_copy,task_num);
@@ -300,6 +509,7 @@ namespace JPSO_name{
 					int tem_int=activity_Fg[P[Sg[activityList[i]]][j]];
 					if(tem_int>tem_ES) tem_ES=tem_int;
 				}
+				if(standby_time[Sg[activityList[i]]]>tem_ES) tem_ES=Sg[activityList[i]];
 				int *R_copy=new int[R_num];
 
 				for(int t=tem_ES;t<Fg[activityList[i]]-d[Sg[activityList[i]]];t++)
@@ -327,26 +537,6 @@ namespace JPSO_name{
 					for(int s=0;s<task_num;s++)
 					{
 						if(s==activityList[i]) continue;
-						//if(t<Fg[s]&&Fg[s]<t+d[Sg[activityList[i]]])
-						//{
-						//	array_copy(R,R_copy,R_num);
-						//	for(int l=0;l<task_num;l++)
-						//	{
-						//		if(l==activityList[i]) continue;
-						//		if(Fg[l]-d[Sg[l]]<=Fg[s]&&Fg[s]<Fg[l])
-						//		{
-						//			for(int m=0;m<R_num;m++) R_copy[m]-=r[Sg[l]][m];
-						//		}
-						//	}				
-						//	for(int l=0;l<R_num;l++)
-						//	{
-						//		if(R_copy[l]<r[Sg[activityList[i]]][l])
-						//		{
-						//			rFeasible=0;
-						//			break;
-						//		}
-						//	}
-						//}
 						if(t<Fg[s]-d[Sg[s]]&&Fg[s]-d[Sg[s]]<t+d[Sg[activityList[i]]])
 						{
 							array_copy(R,R_copy,R_num);
@@ -378,8 +568,10 @@ namespace JPSO_name{
 				delete[] R_copy;
 				for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
 			}
+			for(int i=0;i<task_num;i++) cout<<endl<<i<<" "<<Sg[i]<<" "<<Fg[i];
+			int xx;cin>>xx;
 			delete[] activityList;
-			delete[] activity_Fg;
+			delete[] activity_Fg;*/
 		}
 		else
 		{
@@ -512,6 +704,20 @@ namespace JPSO_name{
 					if(ES_tem<tem_int) ES_tem=tem_int;
 				}
 
+				if(ES_tem<standby_time[activityList[j]]) ES_tem=standby_time[activityList[j]];
+				int max_Fg=0;
+				for(int k=0;k<i;k++){
+					if(Fg[k]>max_Fg) max_Fg=Fg[k];
+				}
+
+				if(max_Fg<=ES_tem){
+					Sg[i]=activityList[j];
+					Fg[i]=ES_tem+d[activityList[j]];
+					isScheduled[activityList[j]]=i;
+					delete[] R_copy;
+					break;
+				}
+
 				for(int k=0;k<i;k++)
 				{
 					if(Fg[k]<ES_tem) continue;
@@ -554,17 +760,26 @@ namespace JPSO_name{
 			}
 		}
 
+		
+
 		if(DJ==1)
 		{
 			right_justification(Sg,Fg,0);
 			left_justification(Sg,Fg,0);
 		}
+		
+		int *y=new int[task_num];
+		for(int i=0;i<task_num;i++){
+			y[Sg[i]]=Fg[i];
+		}
+		for(int i=0;i<task_num;i++) y[i]-=d[i];
+		int result=compute_score(y);
 
-		int result=Fg[task_num-1];
 		delete[] Sg;
 		delete[] Fg;
 		delete[] isScheduled;
 		delete[] activityList;
+		delete[] y;
 		return result;
 	}
 	//SGS using backward method
@@ -679,6 +894,20 @@ namespace JPSO_name{
 				{
 					int tem_int=Fg[isScheduled[P[activityList[j]][k]]];
 					if(ES_tem<tem_int) ES_tem=tem_int;
+				}
+
+				if(ES_tem<standby_time[activityList[j]]) ES_tem=standby_time[activityList[j]];
+				int max_Fg=0;
+				for(int k=0;k<i;k++){
+					if(Fg[k]>max_Fg) max_Fg=Fg[k];
+				}
+
+				if(max_Fg<=ES_tem){
+					Sg[i]=activityList[j];
+					Fg[i]=ES_tem+d[activityList[j]];
+					isScheduled[activityList[j]]=i;
+					delete[] R_copy;
+					break;
 				}
 
 				for(k=0;k<i;k++)
@@ -872,7 +1101,7 @@ namespace JPSO_name{
 				v_back[i][j]=my_rand()*2-1;
 			}
 		}
-
+		
 		if(LFT==1)
 		{
 			if(for_num!=0)
@@ -880,6 +1109,7 @@ namespace JPSO_name{
 				for(int j=0;j<task_num;j++)
 				{
 					x_for[0][j]=1/((double)LF[j]+0.00001);
+					if(status[j]==2) x_for[0][j]=my_rand()*5+5;
 					lbest_for[0][j]=x_for[0][j];
 				}
 			}
@@ -888,6 +1118,7 @@ namespace JPSO_name{
 				for(int j=0;j<task_num;j++)
 				{
 					x_back[0][j]=1/((double)LF[j]+0.00001);
+					if(status[j]==2) x_for[0][j]=my_rand()*5+5;
 					lbest_back[0][j]=x_back[0][j];
 				}
 			}
@@ -1061,7 +1292,7 @@ namespace JPSO_name{
 		else{}
 
 		FILE* file_write=fopen(filePath.c_str(),"w");
-		fprintf(file_write,"%dms\n",clock()-last_time);	
+		fprintf(file_write,"time_cost:%dms\n",clock()-last_time);	
 		if(for_num!=0&&back_num!=0)
 		{
 			get_for_St(gbest_for,gbest_for_St);
@@ -1083,22 +1314,23 @@ namespace JPSO_name{
 		}
 		else if(for_num!=0)
 		{
+			get_for_St(gbest_for,gbest_for_St);
+			fprintf(file_write,"ontime_proportion:%f\n",compute_ontime_proportion(gbest_for_St));
+			fprintf(file_write,"max_delay:%d\n",compute_max_delay(gbest_for_St));
+			fprintf(file_write,"avg_delay:%f\n",compute_avg_delay(gbest_for_St));
+			fprintf(file_write,"avg_flowtime:%f\n",compute_avg_flowtime(gbest_for_St));
+			fprintf(file_write,"object function value:%f\n",compute_score(gbest_for_St));
 			for(int i=0;i<task_num;i++)
 			{
-				for(int i=0;i<task_num;i++)
-				{
-					fprintf(file_write,"%d\n",gbest_for_St[i]);	
-				}		
+				fprintf(file_write,"%d\n",gbest_for_St[i]);		
 			}
 		}
 		else if(back_num!=0)
 		{
+			get_back_St(gbest_back,gbest_back_St);
 			for(int i=0;i<task_num;i++)
 			{
-				for(int i=0;i<task_num;i++)
-				{
-					fprintf(file_write,"%d\n",gbest_back_St[i]);	
-				}		
+				fprintf(file_write,"%d\n",gbest_back_St[i]);	
 			}
 		}
 		else{}
@@ -1167,6 +1399,7 @@ namespace JPSO_name{
 	{
 		int last_time=clock();
 		read(filePath);
+		dataPreProcess();
 		compute_LF();
 		initialize();
 		evolution();
@@ -1174,7 +1407,7 @@ namespace JPSO_name{
 		clear();
 	}
 
-	void JPSO(){
+	void JPSO(int start_i,int start_j){
 		int last_time;
 		char path[MAX_PATH];   
 		_getcwd(path, MAX_PATH);
@@ -1182,10 +1415,10 @@ namespace JPSO_name{
 		string outPath;
 
 		{
-			cout<<"processing j30 ...\n";
-			for(int i=1;i<=48;i++)
+			cout<<"processing start\n";
+			for(int i=start_i;i<5;i++)
 			{
-				for(int j=1;j<=10;j++)
+				for(int j=start_j;j<20;j++)
 				{
 					strstream ss1,ss2;
 					ss1<<i;
@@ -1194,89 +1427,16 @@ namespace JPSO_name{
 					ss1>>s1;
 					ss2>>s2;
 					outPath=filePath=path;
-					filePath+="\\j30\\j30"+s1+"_"+s2+".sm";
-					outPath+="\\j30\\j30"+s1+"_"+s2+"_JPSOresult.txt";
+					filePath+="\\dataInput_"+s1+"_"+s2+".txt";
+					outPath+="\\dataInput_"+s1+"_"+s2+"_JPSOresult.txt";
 					last_time=clock();
-					cout<<"processing j30"<<i<<"_"<<j<<" ...\n";
+					cout<<"processing dataInput_"<<i<<"_"<<j<<" ...\n";
 					process(filePath,outPath);
-					cout<<"j30"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
+					cout<<"dataInput_"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
 
 				}
 			}
 			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j60 ...\n";
-			for(int i=1;i<=48;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j60\\j60"+s1+"_"+s2+".sm";
-					outPath+="\\j60\\j60"+s1+"_"+s2+"_JPSOresult.txt";
-					last_time=clock();
-					cout<<"processing j60"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j60"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j90 ...\n";
-			for(int i=1;i<=48;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j90\\j90"+s1+"_"+s2+".sm";
-					outPath+="\\j90\\j90"+s1+"_"+s2+"_JPSOresult.txt";
-					last_time=clock();
-					cout<<"processing j90"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j90"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-			cout<<"\n\n\n";
-		}
-
-		{
-			Chi=0.3;
-			GR=0.25;
-			cout<<"processing j120 ...\n";
-			for(int i=1;i<=60;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j120\\j120"+s1+"_"+s2+".sm";
-					outPath+="\\j120\\j120"+s1+"_"+s2+"_JPSOresult.txt";
-					last_time=clock();
-					cout<<"processing j120"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j120"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
 		}
 	}
 }

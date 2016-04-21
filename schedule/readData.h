@@ -3,3 +3,4 @@
 using namespace std;
 
 void read(string filePath);
+void dataPreProcess();

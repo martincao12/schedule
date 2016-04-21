@@ -6,7 +6,7 @@ using namespace std;
 
 namespace HSS_name{
 	int init_pool_size=100;
-	int niter=24;
+	int niter=2;
 	int b1_size=20;
 	int b2_size=15;
 	int b1_threshold=1.1;
@@ -77,7 +77,7 @@ namespace HSS_name{
 		}
 		for(int i=0;i<task_num;i++)
 		{
-			for(int j=0;j<task_num-i-1;j++)
+			for(int j=0;j<=task_num-i-1;j++)
 			{
 				if(x[j]<x[j+1])
 				{
@@ -161,6 +161,20 @@ namespace HSS_name{
 				{
 					int tem_int=Fg[isScheduled[P[activityList[j]][k]]];
 					if(ES_tem<tem_int) ES_tem=tem_int;
+				}
+
+				if(ES_tem<standby_time[activityList[j]]) ES_tem=standby_time[activityList[j]];
+				int max_Fg=0;
+				for(int k=0;k<i;k++){
+					if(Fg[k]>max_Fg) max_Fg=Fg[k];
+				}
+
+				if(max_Fg<=ES_tem){
+					Sg[i]=activityList[j];
+					Fg[i]=ES_tem+d[activityList[j]];
+					isScheduled[activityList[j]]=i;
+					delete[] R_copy;
+					break;
 				}
 
 				for(int k=0;k<i;k++)
@@ -294,7 +308,7 @@ namespace HSS_name{
 			delete[] R_copy;
 			for(int i=0;i<task_num;i++) activity_Fg[Sg[i]]=Fg[i];
 		}
-		for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
+		//for(int i=task_num-1;i>=0;i--) Fg[i]-=Fg[0];
 		for(int i=0;i<task_num;i++) stime[i]=Fg[i]-d[i];
 		delete[] activityList;
 		delete[] activity_Fg;
@@ -305,6 +319,10 @@ namespace HSS_name{
 	//left justification
 	void left_justification(int *stime)
 	{
+		stime[0]=0;
+		for(int i=0;i<task_num;i++){
+			if(status[i]==3) stime[i]=0;
+		}
 		int *Sg=new int[task_num];
 		for(int i=0;i<task_num;i++) Sg[i]=i;
 
@@ -328,6 +346,8 @@ namespace HSS_name{
 				int tem_int=activity_Fg[P[Sg[activityList[i]]][j]];
 				if(tem_int>tem_ES) tem_ES=tem_int;
 			}
+			if(standby_time[Sg[activityList[i]]]>tem_ES) tem_ES=standby_time[Sg[activityList[i]]];
+
 			int *R_copy=new int[R_num];
 
 			for(int t=tem_ES;t<Fg[activityList[i]]-d[Sg[activityList[i]]];t++)
@@ -526,7 +546,7 @@ namespace HSS_name{
 
 		for(int i=0;i<population_size;i++){
 			for(int j=0;j<population_size-i-1;j++){
-				if(sche[j][task_num-1]>sche[j+1][task_num-1]){
+				if(compute_score(sche[j])>compute_score(sche[j+1])){
 					array_copy(sche[j+1],tem_sche,task_num);
 					array_copy(sche[j],sche[j+1],task_num);
 					array_copy(tem_sche,sche[j],task_num);
@@ -550,7 +570,7 @@ namespace HSS_name{
 
 		for(int i=0;i<population_size;i++){
 			for(int j=0;j<population_size-i-1;j++){
-				if(sche[j][task_num-1]>sche[j+1][task_num-1]){
+				if(compute_score(sche[j])>compute_score(sche[j+1])){
 					array_copy(sche[j+1],tem_sche,task_num);
 					array_copy(sche[j],sche[j+1],task_num);
 					array_copy(tem_sche,sche[j],task_num);
@@ -609,6 +629,7 @@ namespace HSS_name{
 		double *LFT_priority=new double[task_num];
 		for(int i=0;i<task_num;i++){
 			LFT_priority[i]=1/(double)LF[i];
+			if(status[i]==2) LFT_priority[i]=my_rand()*5+5;
 		}
 
 
@@ -626,7 +647,7 @@ namespace HSS_name{
 		array_copy(init_pool_indv[0],indv_b1[0],task_num);
 		array_copy(init_pool_sche[0],sche_b1[0],task_num);
 		isDeleted[0]=1;
-		obj_best=obj_worst=sche_b1[0][task_num-1];
+		obj_best=obj_worst=compute_score(sche_b1[0]);
 		int b1_index=1;
 
 		for(int i=1;i<init_pool_size;i++){
@@ -643,8 +664,8 @@ namespace HSS_name{
 				isDeleted[i]=1;
 				b1_index++;
 
-				if(init_pool_sche[i][task_num-1]<obj_best) obj_best=init_pool_sche[i][task_num-1];
-				if(init_pool_sche[i][task_num-1]>obj_worst) obj_worst=init_pool_sche[i][task_num-1];
+				if(compute_score(init_pool_sche[i])<obj_best) obj_best=compute_score(init_pool_sche[i]);
+				if(compute_score(init_pool_sche[i])>obj_worst) obj_worst=compute_score(init_pool_sche[i]);
 			}
 			if(b1_index>=b1_size) break;
 		}
@@ -658,8 +679,8 @@ namespace HSS_name{
 					isDeleted[i]=1;
 					b1_index++;
 
-					if(init_pool_sche[i][task_num-1]<obj_best) obj_best=init_pool_sche[i][task_num-1];
-					if(init_pool_sche[i][task_num-1]>obj_worst) obj_worst=init_pool_sche[i][task_num-1];
+					if(compute_score(init_pool_sche[i])<obj_best) obj_best=compute_score(init_pool_sche[i]);
+					if(compute_score(init_pool_sche[i])>obj_worst) obj_worst=compute_score(init_pool_sche[i]);
 				}
 				if(b1_index>=b1_size) break;
 			}
@@ -692,8 +713,8 @@ namespace HSS_name{
 				isDeleted[i]=1;
 				b2_index++;
 
-				if(init_pool_sche[i][task_num-1]<obj_best) obj_best=init_pool_sche[i][task_num-1];
-				if(init_pool_sche[i][task_num-1]>obj_worst) obj_worst=init_pool_sche[i][task_num-1];
+				if(compute_score(init_pool_sche[i])<obj_best) obj_best=compute_score(init_pool_sche[i]);
+				if(compute_score(init_pool_sche[i])>obj_worst) obj_worst=compute_score(init_pool_sche[i]);
 			}
 			if(b2_index>=b2_size) break;
 
@@ -707,8 +728,8 @@ namespace HSS_name{
 					isDeleted[i]=1;
 					b2_index++;
 
-					if(init_pool_sche[i][task_num-1]<obj_best) obj_best=init_pool_sche[i][task_num-1];
-					if(init_pool_sche[i][task_num-1]>obj_worst) obj_worst=init_pool_sche[i][task_num-1];
+					if(compute_score(init_pool_sche[i])<obj_best) obj_best=compute_score(init_pool_sche[i]);
+					if(compute_score(init_pool_sche[i])>obj_worst) obj_worst=compute_score(init_pool_sche[i]);
 				}
 				if(b2_index>=b2_size) break;
 			}
@@ -729,6 +750,7 @@ namespace HSS_name{
 		//cout<<endl<<sche_b1[0][task_num-1];
 
 		for(int iter=0;iter<niter;iter++){
+			cout<<endl<<iter;
 			int new_pool_size=b1_size*(b1_size-1)+b1_size*b2_size+b1_size;
 			int **new_pool;
 			new_pool=new int*[new_pool_size];
@@ -789,7 +811,7 @@ namespace HSS_name{
 			for(int i=0;i<b1_size;i++){
 				for(int j=0;j<b2_size;j++){
 					double *child=new double[task_num];
-					em_combination(indv_b1[i],indv_b2[j],obj_best,obj_worst,sche_b1[i][task_num-1],sche_b2[j][task_num-1],child);
+					em_combination(indv_b1[i],indv_b2[j],obj_best,obj_worst,compute_score(sche_b1[i]),compute_score(sche_b2[j]),child);
 					gen_activityList_NSRK(child,new_pool[new_pool_index]);
 					SGS(new_pool[new_pool_index],new_pool_sche[new_pool_index]);
 					right_justification(new_pool_sche[new_pool_index]);
@@ -833,7 +855,7 @@ namespace HSS_name{
 			else{
 				label_b1[0]=0;
 			}
-			obj_best=obj_worst=sche_b1[0][task_num-1];
+			obj_best=obj_worst=compute_score(sche_b1[0]);
 			int b1_index=1;
 
 
@@ -853,8 +875,8 @@ namespace HSS_name{
 					isDeleted[i]=1;
 					b1_index++;
 
-					if(new_pool_sche[i][task_num-1]<obj_best) obj_best=new_pool_sche[i][task_num-1];
-					if(new_pool_sche[i][task_num-1]>obj_worst) obj_worst=new_pool_sche[i][task_num-1];
+					if(compute_score(new_pool_sche[i])<obj_best) obj_best=compute_score(new_pool_sche[i]);
+					if(compute_score(new_pool_sche[i])>obj_worst) obj_worst=compute_score(new_pool_sche[i]);
 				}
 				if(b1_index>=b1_size) break;
 			}
@@ -868,8 +890,8 @@ namespace HSS_name{
 						isDeleted[i]=1;
 						b1_index++;
 
-						if(new_pool_sche[i][task_num-1]<obj_best) obj_best=new_pool_sche[i][task_num-1];
-						if(new_pool_sche[i][task_num-1]>obj_worst) obj_worst=new_pool_sche[i][task_num-1];
+						if(compute_score(new_pool_sche[i])<obj_best) obj_best=compute_score(new_pool_sche[i]);
+						if(compute_score(new_pool_sche[i])>obj_worst) obj_worst=compute_score(new_pool_sche[i]);
 					}
 					if(b1_index>=b1_size) break;
 				}
@@ -900,8 +922,8 @@ namespace HSS_name{
 					isDeleted[i]=1;
 					b2_index++;
 
-					if(new_pool_sche[i][task_num-1]<obj_best) obj_best=new_pool_sche[i][task_num-1];
-					if(new_pool_sche[i][task_num-1]>obj_worst) obj_worst=new_pool_sche[i][task_num-1];
+					if(compute_score(new_pool_sche[i])<obj_best) obj_best=compute_score(new_pool_sche[i]);
+					if(compute_score(new_pool_sche[i])>obj_worst) obj_worst=compute_score(new_pool_sche[i]);
 				}
 				if(b2_index>=b2_size) break;
 			}
@@ -914,8 +936,8 @@ namespace HSS_name{
 						isDeleted[i]=1;
 						b2_index++;
 
-						if(new_pool_sche[i][task_num-1]<obj_best) obj_best=new_pool_sche[i][task_num-1];
-						if(new_pool_sche[i][task_num-1]>obj_worst) obj_worst=new_pool_sche[i][task_num-1];
+						if(compute_score(new_pool_sche[i])<obj_best) obj_best=compute_score(new_pool_sche[i]);
+						if(compute_score(new_pool_sche[i])>obj_worst) obj_worst=compute_score(new_pool_sche[i]);
 					}
 					if(b2_index>=b2_size) break;
 				}
@@ -938,7 +960,12 @@ namespace HSS_name{
 	//finalize, record the output
 	void finalize(string filePath,int last_time){
 		FILE* file_write=fopen(filePath.c_str(),"w");
-		fprintf(file_write,"%dms\n",clock()-last_time);	
+		fprintf(file_write,"time_cost:%dms\n",clock()-last_time);
+		fprintf(file_write,"ontime_proportion:%f\n",compute_ontime_proportion(sche_b1[0]));
+		fprintf(file_write,"max_delay:%d\n",compute_max_delay(sche_b1[0]));
+		fprintf(file_write,"avg_delay:%f\n",compute_avg_delay(sche_b1[0]));
+		fprintf(file_write,"avg_flowtime:%f\n",compute_avg_flowtime(sche_b1[0]));
+		fprintf(file_write,"object function value:%f\n",compute_score(sche_b1[0]));
 		for(int i=0;i<task_num;i++)
 		{
 			fprintf(file_write,"%d\n",sche_b1[0][i]);	
@@ -968,6 +995,7 @@ namespace HSS_name{
 	void process(string filePath,string outPath){
 		int last_time=clock();
 		read(filePath);
+		dataPreProcess();
 		initialize();
 		evolution();
 		/*phase1();
@@ -976,7 +1004,7 @@ namespace HSS_name{
 		clear();
 	}
 
-	void HSS(){
+	void HSS(int start_i,int start_j){
 		int last_time;
 		char path[MAX_PATH];   
 		_getcwd(path, MAX_PATH);
@@ -984,10 +1012,10 @@ namespace HSS_name{
 		string outPath;
 
 		{
-			cout<<"processing j30 ...\n";
-			for(int i=1;i<=48;i++)
+			cout<<"processing start\n";
+			for(int i=start_i;i<5;i++)
 			{
-				for(int j=1;j<=10;j++)
+				for(int j=start_j;j<20;j++)
 				{
 					strstream ss1,ss2;
 					ss1<<i;
@@ -996,88 +1024,16 @@ namespace HSS_name{
 					ss1>>s1;
 					ss2>>s2;
 					outPath=filePath=path;
-					filePath+="\\j30\\j30"+s1+"_"+s2+".sm";
-					outPath+="\\j30\\j30"+s1+"_"+s2+"_HSSresult.txt";
+					filePath+="\\dataInput_"+s1+"_"+s2+".txt";
+					outPath+="\\dataInput_"+s1+"_"+s2+"_HSSresult.txt";
 					last_time=clock();
-					cout<<"processing j30"<<i<<"_"<<j<<" ...\n";
+					cout<<"processing dataInput_"<<i<<"_"<<j<<" ...\n";
 					process(filePath,outPath);
-					cout<<"j30"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
+					cout<<"dataInput_"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
 
 				}
 			}
 			cout<<"\n\n\n";
 		}
-
-		{
-			cout<<"processing j60 ...\n";
-			for(int i=1;i<=48;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j60\\j60"+s1+"_"+s2+".sm";
-					outPath+="\\j60\\j60"+s1+"_"+s2+"_HSSresult.txt";
-					last_time=clock();
-					cout<<"processing j60"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j60"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j90 ...\n";
-			for(int i=1;i<=48;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j90\\j90"+s1+"_"+s2+".sm";
-					outPath+="\\j90\\j90"+s1+"_"+s2+"_HSSresult.txt";
-					last_time=clock();
-					cout<<"processing j90"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j90"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-			cout<<"\n\n\n";
-		}
-
-		{
-			cout<<"processing j120 ...\n";
-			for(int i=1;i<=60;i++)
-			{
-				for(int j=1;j<=10;j++)
-				{
-					strstream ss1,ss2;
-					ss1<<i;
-					ss2<<j;
-					string s1,s2;
-					ss1>>s1;
-					ss2>>s2;
-					outPath=filePath=path;
-					filePath+="\\j120\\j120"+s1+"_"+s2+".sm";
-					outPath+="\\j120\\j120"+s1+"_"+s2+"_HSSresult.txt";
-					last_time=clock();
-					cout<<"processing j120"<<i<<"_"<<j<<" ...\n";
-					process(filePath,outPath);
-					cout<<"j120"<<i<<"_"<<j<<" has been processed with "<<clock()-last_time<<" ms\n";
-				}
-			}
-		}
-
 	}
 }
